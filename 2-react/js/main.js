@@ -1,5 +1,15 @@
 import store from "./js/Store.js";
 
+const TabType = {
+    KEYWORD: "KEYWORD",
+    HISTORY: "HISTORY",
+}
+
+const TabLabel = {
+    [TabType.KEYWORD]: "추천 검색어",
+    [TabType.HISTORY]: "최근 검색어",
+}
+
 class App extends React.Component {
     constructor() {
         super() // 생성 시점에 부모의 생성자 함수 호출
@@ -8,6 +18,7 @@ class App extends React.Component {
             searchKeyword: "",
             searchResult: [],
             submitted: false,
+            selectedTab: TabType.KEYWORD,
         }
     }
 
@@ -18,8 +29,6 @@ class App extends React.Component {
                 searchResult: [],
                 submitted: false,
             }
-        }, () => {
-            console.log('handleReset: ', this.state.searchKeyword)
         })
     };
 
@@ -82,6 +91,27 @@ class App extends React.Component {
             )
         );
 
+        const tabs = (
+            <>
+                <ul className="tabs">
+                    {Object.values(TabType).map(tabType => {
+                        return (
+                            <li
+                                key = { tabType }
+                                className = {this.state.selectedTab === tabType ? "active" : ""}
+                                onClick = {() => this.setState({ selectedTab: tabType })}
+                            >
+                                { TabLabel[tabType] }
+                            </li>
+                        )
+                    })}
+                </ul>
+
+                {this.state.selectedTab === TabType.KEYWORD && <>추천 검색어</>}
+                {this.state.selectedTab === TabType.HISTORY && <>최근 검색어</>}
+            </>
+        );
+
         return (
             <>
                 <header>
@@ -92,7 +122,7 @@ class App extends React.Component {
                     { searchForm }
 
                     <div className="content">
-                        {this.state.submitted && searchResult}
+                        {this.state.submitted ? searchResult : tabs}
                     </div>
                 </div>
             </>
