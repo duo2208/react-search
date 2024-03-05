@@ -12,14 +12,20 @@ const TabLabel = {
 
 class App extends React.Component {
     constructor() {
-        super() // 생성 시점에 부모의 생성자 함수 호출
+        super(); // 생성 시점에 부모의 생성자 함수 호출
 
         this.state = {
             searchKeyword: "",
             searchResult: [],
             submitted: false,
             selectedTab: TabType.KEYWORD,
+            keywordList: [],
         }
+    }
+
+    componentDidMount() {
+        const keywordList = store.getKeywordList();
+        this.setState({ keywordList });
     }
 
     handleReset() {
@@ -51,7 +57,8 @@ class App extends React.Component {
         const searchResult = store.search(searchKeyword)
         this.setState({
             searchResult,
-            submitted: true
+            submitted: true,
+            searchKeyword,
         })
     }
 
@@ -91,6 +98,21 @@ class App extends React.Component {
             )
         );
 
+        const keywordList = (
+            <ul className="list">
+                {this.state.keywordList.map((item, idx) => (
+                    // TODO - onClick
+                    <li
+                        key={item.id}
+                        onClick={() => this.search(item.keyword)}
+                    >
+                        <span className="number">{idx + 1}</span>
+                        <span>{item.keyword}</span>
+                    </li>
+                ))}
+            </ul>
+        );
+
         const tabs = (
             <>
                 <ul className="tabs">
@@ -107,7 +129,7 @@ class App extends React.Component {
                     })}
                 </ul>
 
-                {this.state.selectedTab === TabType.KEYWORD && <>추천 검색어</>}
+                {this.state.selectedTab === TabType.KEYWORD && keywordList}
                 {this.state.selectedTab === TabType.HISTORY && <>최근 검색어</>}
             </>
         );
