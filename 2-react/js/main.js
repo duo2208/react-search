@@ -1,3 +1,4 @@
+import { formatRelativeDate } from "./js/helpers.js";
 import store from "./js/Store.js";
 
 const TabType = {
@@ -20,12 +21,17 @@ class App extends React.Component {
             submitted: false,
             selectedTab: TabType.KEYWORD,
             keywordList: [],
+            historyList: [],
         }
     }
 
     componentDidMount() {
         const keywordList = store.getKeywordList();
-        this.setState({ keywordList });
+        const historyList = store.getHistoryList();
+        this.setState({
+            keywordList,
+            historyList,
+        });
     }
 
     handleReset() {
@@ -53,12 +59,24 @@ class App extends React.Component {
         this.search(this.state.searchKeyword)
     }
 
+    handleClearHistory(event, keyword) {
+        event.stopPropagation();
+        store.removeHistory(keyword);
+        const historyList = store.getHistoryList();
+        this.setState({
+            historyList,
+        })
+    }
+
     search(searchKeyword) {
         const searchResult = store.search(searchKeyword)
+        const historyList = store.getHistoryList()
+
         this.setState({
             searchResult,
             submitted: true,
             searchKeyword,
+            historyList,
         })
     }
 
@@ -101,7 +119,6 @@ class App extends React.Component {
         const keywordList = (
             <ul className="list">
                 {this.state.keywordList.map((item, idx) => (
-                    // TODO - onClick
                     <li
                         key={item.id}
                         onClick={() => this.search(item.keyword)}
@@ -112,6 +129,26 @@ class App extends React.Component {
                 ))}
             </ul>
         );
+
+        const historyList = (
+            <ul className="list">
+                {this.state.historyList.map((item, idx) => (
+                    <li
+                        key={item.id}
+                        onClick={() => this.search(item.keyword)}
+                    >
+                        <span className="number">{idx + 1}</span>
+                        <span>{item.keyword}</span>
+                        <span className="date">{formatRelativeDate(item.date)}</span>
+                        <button
+                            className="btn-remove"
+                            onClick={event => this.handleClearHistory(event, item.keyword)}
+                        >
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        )
 
         const tabs = (
             <>
@@ -130,7 +167,7 @@ class App extends React.Component {
                 </ul>
 
                 {this.state.selectedTab === TabType.KEYWORD && keywordList}
-                {this.state.selectedTab === TabType.HISTORY && <>최근 검색어</>}
+                {this.state.selectedTab === TabType.HISTORY && historyList}
             </>
         );
 
