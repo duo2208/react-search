@@ -12,20 +12,15 @@ module.exports = {
   },
   devtool: "inline-source-map",
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: './',    // webpack is served from here
+    publicPath: '/dist/', // webpack output is served from here
+    historyApiFallback: true,
   },
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        exclude: /node_module/,
-        use: {
-          loader: "babel-loader",
-        },
-      },
-      {
         test: /\.(ts|tsx)$/,
-        exclude: /node_module/,
+        exclude: /node_modules/,
         use: {
           loader: "ts-loader",
         },
@@ -35,5 +30,4 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  plugins: [new CleanWebpackPlugin()],
 };
